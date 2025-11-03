@@ -15,12 +15,12 @@ PARAMS = [
     {'name': 'loss_function', 'type': str, 'default': 'crossentropy'},
     {'name': 'l2_reg', 'type': float, 'default': 2.5e-4},
     {'name': 'features', 'type': str,
-        'default': 'coverage_norm,gc_norm,kmer_dot,degree,length_norm,loglength'},
+     'default': 'coverage_norm,gc_norm,kmer_dot,degree,length_norm,loglength'},
     {'name': 'n_labels', 'type': int, 'default': 2},
     {'name': 'random_seed', 'type': int, 'default': 123},
     {'name': 'plasmid_ambiguous_weight', 'type': float, 'default': 1.0},
     {'name': 'learning_rate', 'type': float, 'default': 0.005},
-    {'name': 'epochs', 'type': int, 'default': 1000},
+    {'name': 'epochs', 'type': int, 'default': 2},
     {'name': 'early_stopping_patience', 'type': int, 'default': 100},
     {'name': 'set_thresholds', 'type': bool, 'default': False},
     {'name': 'plasmid_threshold', 'type': float, 'default': 0.5},
@@ -31,8 +31,8 @@ PARAMS = [
 
 class config:
     def __init__(
-        self,
-        yaml_file=None
+            self,
+            yaml_file=None
     ):
         # create list of parameter values and assign default value for each
         self._params = {}
@@ -61,7 +61,7 @@ class config:
         # special handling of output_activation - change to None if indicated
         if self._params["output_activation"].casefold() == "none".casefold():
             self._params["output_activation"] = None
-    
+
     def __getitem__(self, key):
         return self._params[key]
 
@@ -75,4 +75,4 @@ class config:
         with open(filename, "w") as file:
             yaml.dump(to_write, file)
 
-    
+

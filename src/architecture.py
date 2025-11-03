@@ -1,9 +1,12 @@
 import tensorflow as tf
-from tensorflow.keras.callbacks import EarlyStopping
-from tensorflow.keras.losses import BinaryCrossentropy
-from tensorflow.keras.optimizers import Adam
-from tensorflow.keras import layers
-from tensorflow.python.training.tracking.data_structures import NoDependency
+# from tensorflow.keras.callbacks import EarlyStopping
+# from tensorflow.keras.losses import BinaryCrossentropy
+# from tensorflow.keras.optimizers import Adam
+import keras
+from keras import layers
+# from tensorflow.keras import layers
+# from tensorflow.python.training.tracking.data_structures import NoDependency
+from tensorflow.python.trackable.data_structures import NoDependency
 
 from spektral.layers import GCNConv
 from spektral.layers.convolutional import gcn_conv
@@ -12,23 +15,25 @@ from spektral.transforms import GCNFilter
 from spektral.data import Dataset
 from spektral.data import Graph
 from spektral.data.loaders import SingleLoader
+from config import config as ConfigClass
 
 import numpy as np
 import thresholds
 
-class plasgraph(tf.keras.Model):
+
+class plasgraph(keras.Model):
     def __init__(
-        self,
-        parameters,
-        **kwargs,
+            self,
+            parameters,
+            **kwargs,
     ):
         super().__init__(**kwargs)
 
         self._parameters = parameters
         # individual parameters can be now accessed using self['param_name']
-            
-        reg = tf.keras.regularizers.l2(self['l2_reg'])
-        
+
+        reg = keras.regularizers.l2(self['l2_reg'])
+
         # Input layers
         self.preproc = layers.Dense(self['n_channels_preproc'], self['preproc_activation'])
         self._fully_connected_input_1 = layers.Dense(
@@ -37,19 +42,19 @@ class plasgraph(tf.keras.Model):
         self._fully_connected_input_2 = layers.Dense(
             self['n_channels'], activation=self['fully_connected_activation']
         )
-        
+
         # GNN iterations layers
         self._gnn_dropout_pre_gcn = NoDependency([
-            layers.Dropout(self['dropout_rate']) 
+            layers.Dropout(self['dropout_rate'])
             for gnn_layer in range(self['n_gnn_layers'])
         ])
         self._gnn_dropout_pre_fully_connected = NoDependency([
-            layers.Dropout(self['dropout_rate']) 
+            layers.Dropout(self['dropout_rate'])
             for gnn_layer in range(self['n_gnn_layers'])
         ])
         if self['tie_gnn_layers']:
             self.gnn_gcn_layer = gcn_conv.GCNConv(
-                channels=self['n_channels'], activation=self['gcn_activation'], 
+                channels=self['n_channels'], activation=self['gcn_activation'],
                 kernel_regularizer=reg, use_bias=True
             )
             self.gnn_fully_connected_layer = layers.Dense(
@@ -59,7 +64,7 @@ class plasgraph(tf.keras.Model):
             self._gnn_fully_connected = NoDependency(
                 [self.gnn_fully_connected_layer] * self['n_gnn_layers']
             )
-            
+
         else:
             gcn_list = []  # temporary list of GCN layers
             dense_list = []  # temporary list of fully connected layers
@@ -69,7 +74,7 @@ class plasgraph(tf.keras.Model):
                 dense_name = f"gnn_dense_{layer_idx}"
                 # create layers and store as instance variables (needed to save the model)
                 setattr(self, gcn_name, gcn_conv.GCNConv(
-                    channels=self['n_channels'], activation=self['gcn_activation'], 
+                    channels=self['n_channels'], activation=self['gcn_activation'],
                     kernel_regularizer=reg, use_bias=True
                 ))
                 setattr(self, dense_name, layers.Dense(
@@ -80,9 +85,9 @@ class plasgraph(tf.keras.Model):
                 dense_list.append(getattr(self, dense_name))
             # store lists in instance variables which are not saved
             self._gnn_gcn = NoDependency(gcn_list)
-            self._gnn_fully_connected = NoDependency(dense_list)            
+            self._gnn_fully_connected = NoDependency(dense_list)
 
-        # Last layers
+            # Last layers
         self._fully_connected_last_1 = layers.Dense(
             self['n_channels'], activation=self['fully_connected_activation']
         )
@@ -95,6 +100,11 @@ class plasgraph(tf.keras.Model):
     def __getitem__(self, key):
         return self._parameters[key]
 
+    def get_config(self):
+        config = super().get_config()
+        config.update({"parameters": self._parameters._params})
+        return config
+
     def call(self, inputs):
         x, a = inputs
 
@@ -106,12 +116,15 @@ class plasgraph(tf.keras.Model):
         # GNN layers
         for gnn_layer in range(self['n_gnn_layers']):
             x = self._gnn_dropout_pre_gcn[gnn_layer](x)
-            x = self._gnn_gcn[gnn_layer]([x, a])
+            # x = self._gnn_gcn[gnn_layer](inputs=[x, a], mask=(1,))
+            # x = self._gnn_gcn[gnn_layer]([x, a])
+            mask_tensor = tf.ones((tf.shape(x)[0],), dtype=tf.float32)  # or dtype=tf.float32
+            x = self._gnn_gcn[gnn_layer](inputs=[x, a], mask=mask_tensor)
             merged = layers.concatenate([node_identity, x])
             x = self._gnn_dropout_pre_fully_connected[gnn_layer](merged)
-            x = self._gnn_fully_connected[gnn_layer](x)            
-        
-        # Last Layer
+            x = self._gnn_fully_connected[gnn_layer](x)
+
+            # Last Layer
         merged = layers.concatenate([node_identity, x])
         x = self._dropout_last_1(merged)
         x = self._fully_connected_last_1(x)
@@ -120,10 +133,23 @@ class plasgraph(tf.keras.Model):
 
         return x
 
-def apply_to_graph(model, graph, parameters, apply_thresholds = True):
+    @classmethod
+    def from_config(cls, config_dict):
+        from config import config as ConfigClass
+        if "parameters" not in config_dict:
+            raise ValueError("Missing 'parameters' in model config during deserialization.")
+
+        parameters_dict = config_dict.pop("parameters")
+        parameters = ConfigClass()
+        parameters._params.update(parameters_dict)
+
+        return cls(parameters=parameters, **config_dict)
+
+
+def apply_to_graph(model, graph, parameters, apply_thresholds=True):
     loader = SingleLoader(graph)
     preds = model.predict(loader.load(), steps=loader.steps_per_epoch)
-    
+
     # hinge uses [-1,1] scale of predictons, move them to [0,1] scale
     if parameters["loss_function"] == "squaredhinge":
         preds = (preds + 1) / 2.0
