@@ -12,6 +12,8 @@ n_channels: 32
 n_channels_preproc: 10
 # Tie GNN layers variables
 tie_gnn_layers: true
+# Use attention mechanism
+use_attention: true
 
 ## Activation functions
 # Preprocessing layer activation

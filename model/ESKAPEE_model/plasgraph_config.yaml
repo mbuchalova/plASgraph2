@@ -1,4 +1,4 @@
-chromosome_threshold: 0.49657195806503296
+chromosome_threshold: 0.46424996852874756
 dropout_rate: 0.1
 early_stopping_patience: 100
 epochs: 1000
@@ -15,8 +15,9 @@ n_gnn_layers: 6
 n_labels: 2
 output_activation: sigmoid
 plasmid_ambiguous_weight: 1.0
-plasmid_threshold: 0.36344245076179504
+plasmid_threshold: 0.3304499685764313
 preproc_activation: sigmoid
 random_seed: 123
 set_thresholds: true
 tie_gnn_layers: true
+use_attention: true

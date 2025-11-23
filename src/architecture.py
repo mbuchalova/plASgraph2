@@ -10,6 +10,7 @@ from tensorflow.python.trackable.data_structures import NoDependency
 
 from spektral.layers import GCNConv
 from spektral.layers.convolutional import gcn_conv
+from spektral.layers import GATConv
 from spektral.transforms import LayerPreprocess
 from spektral.transforms import GCNFilter
 from spektral.data import Dataset
@@ -34,7 +35,7 @@ class plasgraph(keras.Model):
 
         reg = keras.regularizers.l2(self['l2_reg'])
 
-        # Input layers
+        # Input layers - definovanie vstupnych vrstiev
         self.preproc = layers.Dense(self['n_channels_preproc'], self['preproc_activation'])
         self._fully_connected_input_1 = layers.Dense(
             self['n_channels'], activation=self['fully_connected_activation']
@@ -43,7 +44,7 @@ class plasgraph(keras.Model):
             self['n_channels'], activation=self['fully_connected_activation']
         )
 
-        # GNN iterations layers
+        # GNN iterations layers - nastavenie dropout rate
         self._gnn_dropout_pre_gcn = NoDependency([
             layers.Dropout(self['dropout_rate'])
             for gnn_layer in range(self['n_gnn_layers'])
@@ -53,10 +54,23 @@ class plasgraph(keras.Model):
             for gnn_layer in range(self['n_gnn_layers'])
         ])
         if self['tie_gnn_layers']:
-            self.gnn_gcn_layer = gcn_conv.GCNConv(
-                channels=self['n_channels'], activation=self['gcn_activation'],
-                kernel_regularizer=reg, use_bias=True
-            )
+            if self["use_attention"]:
+                print("Using attention layer")
+                self.gnn_gcn_layer = GATConv(
+                    channels=self['n_channels'],
+                    attn_heads=1,
+                    concat_heads=False,
+                    activation=self['gcn_activation'],
+                    kernel_regularizer=reg,
+                    use_bias=True
+                )
+            else:
+                self.gnn_gcn_layer = gcn_conv.GCNConv(
+                    channels=self['n_channels'],
+                    activation=self['gcn_activation'],
+                    kernel_regularizer=reg,
+                    use_bias=True
+                )
             self.gnn_fully_connected_layer = layers.Dense(
                 self['n_channels'], activation=self['fully_connected_activation']
             )
@@ -73,10 +87,24 @@ class plasgraph(keras.Model):
                 gcn_name = f"gnn_gcn_{layer_idx}"
                 dense_name = f"gnn_dense_{layer_idx}"
                 # create layers and store as instance variables (needed to save the model)
-                setattr(self, gcn_name, gcn_conv.GCNConv(
-                    channels=self['n_channels'], activation=self['gcn_activation'],
-                    kernel_regularizer=reg, use_bias=True
-                ))
+                if self["use_attention"]:
+                    print("Using attention layer")
+                    setattr(self, gcn_name, GATConv(
+                        channels=self['n_channels'],
+                        attn_heads=1,
+                        concat_heads=False,
+                        dropout_rate=self['attention_dropout'],
+                        activation=self['gcn_activation'],
+                        kernel_regularizer=reg,
+                        use_bias=True
+                    ))
+                else:
+                    setattr(self, gcn_name, gcn_conv.GCNConv(
+                        channels=self['n_channels'],
+                        activation=self['gcn_activation'],
+                        kernel_regularizer=reg,
+                        use_bias=True
+                    ))
                 setattr(self, dense_name, layers.Dense(
                     self['n_channels'], activation=self['fully_connected_activation']
                 ))
@@ -118,7 +146,7 @@ class plasgraph(keras.Model):
             x = self._gnn_dropout_pre_gcn[gnn_layer](x)
             # x = self._gnn_gcn[gnn_layer](inputs=[x, a], mask=(1,))
             # x = self._gnn_gcn[gnn_layer]([x, a])
-            mask_tensor = tf.ones((tf.shape(x)[0],), dtype=tf.float32)  # or dtype=tf.float32
+            mask_tensor = tf.ones((tf.shape(x)[0],), dtype=tf.float32)
             x = self._gnn_gcn[gnn_layer](inputs=[x, a], mask=mask_tensor)
             merged = layers.concatenate([node_identity, x])
             x = self._gnn_dropout_pre_fully_connected[gnn_layer](merged)
