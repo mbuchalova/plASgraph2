@@ -55,26 +55,26 @@ def main(config_file: 'YAML configuration file',
     parameters = config.config(config_file)
 
     # read GFA and CSV files in the training set
-    # G = create_graph.read_graph_set(file_prefix, train_file_list, parameters['minimum_contig_length'])
+    G = create_graph.read_graph_set(file_prefix, train_file_list, parameters['minimum_contig_length'])
 
     # Define the file path for the pickle file
-    file_path = os.path.join(model_output_dir, "G")
+    # file_path = os.path.join(model_output_dir, "G")
 
     # Check if the pickle file already exists
-    if os.path.exists(file_path):
-        # Load the graph object from the pickle file if it exists
-        with open(file_path, 'rb') as file:
-            print("Otvaram subor G")
-            G = pickle.load(file)
-            print("Otvoril som subor G")
-    else:
-        # Create the graph object if the pickle file does not exist
-        print("vytvaram subor G")
-        G = create_graph.read_graph_set(file_prefix, train_file_list, parameters['minimum_contig_length'])
-
-        # Save the graph object to a pickle file
-        with open(file_path, 'wb') as file:
-            pickle.dump(G, file)
+    # if os.path.exists(file_path):
+    #     # Load the graph object from the pickle file if it exists
+    #     with open(file_path, 'rb') as file:
+    #         print("Otvaram subor G")
+    #         G = pickle.load(file)
+    #         print("Otvoril som subor G")
+    # else:
+    #     # Create the graph object if the pickle file does not exist
+    #     print("vytvaram subor G")
+    #     G = create_graph.read_graph_set(file_prefix, train_file_list, parameters['minimum_contig_length'])
+    #
+    #     # Save the graph object to a pickle file
+    #     with open(file_path, 'wb') as file:
+    #         pickle.dump(G, file)
 
     if gml_file is not None:
         nx.write_gml(G, path=gml_file)
@@ -84,7 +84,8 @@ def main(config_file: 'YAML configuration file',
     # generate spektral graph
     all_graphs = create_graph.Networkx_to_Spektral(G, node_list, parameters)
 
-    all_graphs.apply(GCNFilter())  # normalize by degrees, add 1 along diagonal
+    if not parameters['use_attention']:
+        all_graphs.apply(GCNFilter())  # normalize by degrees, add 1 along diagonal
 
     if log_dir is not None:
         if not os.path.isdir(log_dir):

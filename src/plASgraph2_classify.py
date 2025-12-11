@@ -50,7 +50,10 @@ def main_set(
     test_files = pd.read_csv(test_file_list, names=('graph', 'csv', 'sample_id'), header=None)
 
     # loading the model from a file
-    model = keras.models.load_model(model_dir)
+    # model = keras.models.load_model(model_dir)
+
+    model = keras.models.load_model(os.path.join(model_dir, "saved_model.keras"),
+                                    custom_objects={"plasgraph": architecture.plasgraph, "config": config.config})
     # Creating a dictionary parameters of parameter values from YAML file
     parameters = config.config(os.path.join(model_dir, config.DEFAULT_FILENAME))
 
@@ -94,7 +97,8 @@ def test_one(file_prefix, graph_file, model, parameters, sample_id):
     node_list = list(G)  # fix order of nodes
 
     the_graph = create_graph.Networkx_to_Spektral(G, node_list, parameters)
-    the_graph.apply(GCNFilter())
+    if not parameters['use_attention']:
+        the_graph.apply(GCNFilter())
 
     # compute predictions
     preds = architecture.apply_to_graph(model, the_graph, parameters)
