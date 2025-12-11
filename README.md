@@ -24,9 +24,8 @@ All modules can be installed using pip (https://docs.python.org/3.8/installing/i
 
 The environment can be created e.g. using the commands below:
 ```bash
-python3 -m venv venv
-source venv/bin/activate
-pip3 install -r plASgraph2/requirements.txt
+mamba env create -f environment.yml
+mamba activate environment
 ```
 
 PlASgraph2 is using tensorflow and it can use GPU to speed up the computation, which is useful to train plASgraph2. You can test whether your installation is correctly set up by running  the following command in your virtual environment:
