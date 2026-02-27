@@ -93,7 +93,6 @@ class plasgraph(keras.Model):
                         channels=self['n_channels'],
                         attn_heads=1,
                         concat_heads=False,
-                        dropout_rate=self['attention_dropout'],
                         activation=self['gcn_activation'],
                         kernel_regularizer=reg,
                         use_bias=True
