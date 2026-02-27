@@ -49,7 +49,11 @@ class Networkx_to_Spektral(Dataset):
         y = self.extract_y()
         
         a = nx.adjacency_matrix(self.nx_graph, nodelist=self.node_order)
-        a.setdiag(0)
+
+        if self.parameters["use_attention"]:
+            a.setdiag(1)
+        else:
+            a.setdiag(0)
         a.eliminate_zeros()
 
         # return a list of Graph objects
