@@ -58,7 +58,7 @@ class plasgraph(keras.Model):
                 print("Using attention layer")
                 self.gnn_gcn_layer = GATConv(
                     channels=self['n_channels'],
-                    attn_heads=1,
+                    attn_heads=self['number_of_heads'],
                     concat_heads=False,
                     activation=self['gcn_activation'],
                     kernel_regularizer=reg,
