@@ -15,7 +15,7 @@ tie_gnn_layers: true
 # Use attention mechanism
 use_attention: true
 # Number of heads
-number_of_heads: 4
+number_of_heads: 1
 
 ## Activation functions
 # Preprocessing layer activation

@@ -27,7 +27,7 @@ PARAMS = [
     {'name': 'chromosome_threshold', 'type': float, 'default': 0.5},
     {'name': 'minimum_contig_length', 'type': int, 'default': 100},
     {'name': 'use_attention', 'type': bool, 'default': True},
-    {'name': 'number_of_heads', 'type': int, 'default': 4},
+    {'name': 'number_of_heads', 'type': int, 'default': 1},
 ]
 
 
