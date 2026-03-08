@@ -14,6 +14,8 @@ n_channels_preproc: 10
 tie_gnn_layers: true
 # Use attention mechanism
 use_attention: true
+# Use normalization layer
+normalization: None
 
 ## Activation functions
 # Preprocessing layer activation

@@ -28,6 +28,7 @@ PARAMS = [
     {'name': 'minimum_contig_length', 'type': int, 'default': 100},
     {'name': 'use_attention', 'type': bool, 'default': True},
     {'name': 'number_of_heads', 'type': int, 'default': 1},
+    {'name': 'normalization', 'type': str, 'default': None},
 ]
 
 

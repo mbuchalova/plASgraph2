@@ -54,6 +54,7 @@ class Networkx_to_Spektral(Dataset):
             a.setdiag(1)
         else:
             a.setdiag(0)
+
         a.eliminate_zeros()
 
         # return a list of Graph objects
