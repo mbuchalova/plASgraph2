@@ -1,0 +1,17 @@
+name: plASgraph2
+channels:
+  - conda-forge
+dependencies:
+  - biopython
+  - matplotlib
+  - networkx
+  - numpy
+  - pandas
+  - protobuf
+  - python=3.12
+  - pyyaml
+  - scikit-learn
+  - scipy
+  - tensorflow
+
+prefix: "/home/buchalova/miniconda3/envs/plASgraph2"
