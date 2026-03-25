@@ -97,7 +97,10 @@ def score_thresholds(y_true, y_pred, weights):
         if i > 0 and pairs[i][1] < pairs[i-1][1]:
             recall = tp / pos
             precision = tp / (i+1)
-            f1 = 2 * precision * recall / (precision + recall)
+            if (precision + recall) == 0:
+                f1 = 0
+            else:
+                f1 = 2 * precision * recall / (precision + recall)
             threshold = (pairs[i-1][1] + pairs[i][1]) / 2
             scores.append((threshold, f1))
     
