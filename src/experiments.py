@@ -21,9 +21,9 @@ SUMMARY = "./src/evaluation/eval-summary.py"
 os.makedirs(EXPERIMENTS_ROOT, exist_ok=True)
 
 head = [1,2,3]
-learning_rate = [0.0001, 0.0003, 0.005]
+learning_rate = [0.001, 0.003]
 tie = [True, False]
-normalization = ["batch", "layer"]
+normalization = [None, "batch", "layer"]
 name = ""
 
 EXPERIMENTS = []
@@ -110,23 +110,29 @@ def resutls(eval_name, summary_name):
         "python",
         EVAL,
         "model/gold_all.csv",
-        path,
-        f"-n {name} -s default > {RESULTS_ROOT}/{eval_name}",
+        *path_experiments,
+        "-n",
+        name,
+        "-s",
+        "default",
     ]
 
-    print(f"\n=== Running evaluation ===")
-    subprocess.run(cmd_eval, check=True)
+    print("\n=== Running evaluation ===")
+    with open(os.path.join(RESULTS_ROOT, eval_name), "w") as eval_out:
+        subprocess.run(cmd_eval, stdout=eval_out, check=True)
 
     cmd_summary = [
         "python",
         SUMMARY,
-        f"{RESULTS_ROOT}/{eval_name}",
-        "MEDIAN -o csv",
-        f"> {RESULTS_ROOT}/{summary_name}",
+        os.path.join(RESULTS_ROOT, eval_name),
+        "MEDIAN",
+        "-o",
+        "csv",
     ]
 
-    print(f"\n=== Running summary of the evaluation ===")
-    subprocess.run(cmd_summary, check=True)
+    print("\n=== Running summary of the evaluation ===")
+    with open(os.path.join(RESULTS_ROOT, summary_name), "w") as summary_out:
+        subprocess.run(cmd_summary, stdout=summary_out, check=True)
 
 
 
