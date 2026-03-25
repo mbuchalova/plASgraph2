@@ -137,7 +137,9 @@ def read_graph(graph_file, csv_file, sample_id, graph, minimum_contig_length):
                 graph.nodes[node_id]["coverage"] = coverage
                 coverage_types[is_dp] += 1
                 graph.nodes[node_id]["gc"] = helpers.get_gc_content(seq)
-                graph.nodes[node_id]["kmer_counts_norm"] = helpers.get_kmer_distribution(seq, scale=True)
+
+                kmer_counts = helpers.get_kmer_distribution(seq, scale=True)
+                graph.nodes[node_id]["kmer_counts_norm"] = kmer_counts
     
     # check that only one coverage type seen
     assert coverage_types[True] == 0 or coverage_types[False] == 0
@@ -161,7 +163,10 @@ def read_graph(graph_file, csv_file, sample_id, graph, minimum_contig_length):
     gc_of_whole_seq = helpers.get_gc_content(whole_seq)
     # set normalized gc content
     for node_id in current_nodes:
-        graph.nodes[node_id]["gc_norm"] =  graph.nodes[node_id]["gc"] - gc_of_whole_seq
+        # relative
+        # graph.nodes[node_id]["gc_norm"] =  graph.nodes[node_id]["gc"] - gc_of_whole_seq
+        # not relative
+        graph.nodes[node_id]["gc_norm"] = graph.nodes[node_id]["gc"]
     
 
     # get max length
@@ -172,15 +177,19 @@ def read_graph(graph_file, csv_file, sample_id, graph, minimum_contig_length):
         graph.nodes[node_id]["length_norm"] =  graph.nodes[node_id]["length"] / 2000000
         graph.nodes[node_id]["loglength"] = math.log(graph.nodes[node_id]["length"]+1)
 
-    add_normalized_coverage(graph, current_nodes)
+    # relative
+    # add_normalized_coverage(graph, current_nodes)
+    # not relative
+    for node_id in current_nodes:
+        graph.nodes[node_id]["coverage_norm"] = graph.nodes[node_id]["coverage"]
         
     # get euclidian of pentamer distribution for each node
-    all_kmer_counts_norm = np.array(helpers.get_kmer_distribution(whole_seq, scale=True))
-    for node_id in current_nodes:
-        diff = np.array(graph.nodes[node_id]["kmer_counts_norm"]) - all_kmer_counts_norm
-        graph.nodes[node_id]["kmer_dist"] = np.linalg.norm(diff)
-        graph.nodes[node_id]["kmer_dot"] = np.dot(np.array(graph.nodes[node_id]["kmer_counts_norm"]),all_kmer_counts_norm)
-        graph.nodes[node_id]["kmer_kl"] = KL(np.array(graph.nodes[node_id]["kmer_counts_norm"]),all_kmer_counts_norm)
+    # all_kmer_counts_norm = np.array(helpers.get_kmer_distribution(whole_seq, scale=True))
+    # for node_id in current_nodes:
+    #     diff = np.array(graph.nodes[node_id]["kmer_counts_norm"]) - all_kmer_counts_norm
+    #     graph.nodes[node_id]["kmer_dist"] = np.linalg.norm(diff)
+    #     graph.nodes[node_id]["kmer_dot"] = np.dot(np.array(graph.nodes[node_id]["kmer_counts_norm"]),all_kmer_counts_norm)
+    #     graph.nodes[node_id]["kmer_kl"] = KL(np.array(graph.nodes[node_id]["kmer_counts_norm"]),all_kmer_counts_norm)
     
         
     # read and add node labels

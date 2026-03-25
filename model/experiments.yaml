@@ -16,6 +16,8 @@ tie_gnn_layers: true
 use_attention: true
 # Number of heads
 number_of_heads: 1
+# Use normalization layer
+normalization: None
 
 ## Activation functions
 # Preprocessing layer activation
