@@ -26,15 +26,17 @@ tie = [True]
 normalization = [None, "batch", "layer"]
 name = ""
 
-EXPERIMENTS = []
+EXPERIMENTS = [{'name': "2_h_lr_0.003_tie_True_norm_None", 'number_of_heads': 2, 'learning_rate': 0.003, 'tie_gnn_layers': True, 'normalization': None},
+               {'name': "2_h_lr_0.003_tie_True_norm_batch", 'number_of_heads': 2, 'learning_rate': 0.003, 'tie_gnn_layers': True, 'normalization': "batch"},
+               {'name': "2_h_lr_0.005_tie_True_norm_batch", 'number_of_heads': 2, 'learning_rate': 0.005, 'tie_gnn_layers': True, 'normalization': "layer"}]
 
-for h in head:
-    for lr in learning_rate:
-        for t in tie:
-            for n in normalization:
-                name = f"{h}_h_lr_{lr}_tie_{t}_norm_{n}"
-                exp = {'name': name, 'number_of_heads': h, 'learning_rate': lr, 'tie_gnn_layers': t, 'normalization': n}
-                EXPERIMENTS.append(exp)
+# for h in head:
+#     for lr in learning_rate:
+#         for t in tie:
+#             for n in normalization:
+#                 name = f"{h}_h_lr_{lr}_tie_{t}_norm_{n}"
+#                 exp = {'name': name, 'number_of_heads': h, 'learning_rate': lr, 'tie_gnn_layers': t, 'normalization': n}
+#                 EXPERIMENTS.append(exp)
 
 
 def run_experiment(exp_cfg: dict):
