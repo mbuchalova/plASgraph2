@@ -20,9 +20,9 @@ EVAL = "./src/evaluation/eval.py"
 SUMMARY = "./src/evaluation/eval-summary.py"
 os.makedirs(EXPERIMENTS_ROOT, exist_ok=True)
 
-head = [1,2,3]
-learning_rate = [0.001, 0.003]
-tie = [True, False]
+head = [2]
+learning_rate = [0.003, 0.005]
+tie = [True]
 normalization = [None, "batch", "layer"]
 name = ""
 
