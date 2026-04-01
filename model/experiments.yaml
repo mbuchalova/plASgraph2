@@ -1,7 +1,7 @@
 ## plASgraph2 configuration file
 
 ## Learning features
-features: coverage_norm,gc_norm,kmer_dot,degree,length_norm,loglength
+features: coverage_norm,gc_norm,kmer_counts_norm,degree,length_norm,loglength
 
 ## Architecture parameters
 # Number of GNN layers

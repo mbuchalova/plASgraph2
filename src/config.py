@@ -15,7 +15,7 @@ PARAMS = [
     {'name': 'loss_function', 'type': str, 'default': 'crossentropy'},
     {'name': 'l2_reg', 'type': float, 'default': 2.5e-4},
     {'name': 'features', 'type': str,
-     'default': 'coverage_norm,gc_norm,kmer_dot,degree,length_norm,loglength'},
+     'default': 'coverage_norm,gc_norm,kmer_counts_norm,degree,length_norm,loglength'},
     {'name': 'n_labels', 'type': int, 'default': 2},
     {'name': 'random_seed', 'type': int, 'default': 123},
     {'name': 'plasmid_ambiguous_weight', 'type': float, 'default': 1.0},

@@ -164,9 +164,9 @@ def read_graph(graph_file, csv_file, sample_id, graph, minimum_contig_length):
     # set normalized gc content
     for node_id in current_nodes:
         # relative
-        graph.nodes[node_id]["gc_norm"] =  graph.nodes[node_id]["gc"] - gc_of_whole_seq
+        # graph.nodes[node_id]["gc_norm"] =  graph.nodes[node_id]["gc"] - gc_of_whole_seq
         # not relative
-        # graph.nodes[node_id]["gc_norm"] = graph.nodes[node_id]["gc"]
+        graph.nodes[node_id]["gc_norm"] = graph.nodes[node_id]["gc"]
     
 
     # get max length
@@ -178,10 +178,10 @@ def read_graph(graph_file, csv_file, sample_id, graph, minimum_contig_length):
         graph.nodes[node_id]["loglength"] = math.log(graph.nodes[node_id]["length"]+1)
 
     # relative
-    add_normalized_coverage(graph, current_nodes)
+    # add_normalized_coverage(graph, current_nodes)
     # not relative
-    # for node_id in current_nodes:
-    #     graph.nodes[node_id]["coverage_norm"] = graph.nodes[node_id]["coverage"]
+    for node_id in current_nodes:
+        graph.nodes[node_id]["coverage_norm"] = graph.nodes[node_id]["coverage"]
         
     # get euclidian of pentamer distribution for each node
     all_kmer_counts_norm = np.array(helpers.get_kmer_distribution(whole_seq, scale=True))
