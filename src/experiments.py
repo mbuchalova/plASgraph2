@@ -141,4 +141,4 @@ def resutls(eval_name, summary_name):
 if __name__ == "__main__":
     for exp in EXPERIMENTS:
         run_experiment(exp)
-    resutls("eval_with_normalization.csv", "summary_with_normalization.csv")
+    resutls("eval_first_experiment_absolute_values.csv", "summary_first_experiment_absolute_values.csv")
